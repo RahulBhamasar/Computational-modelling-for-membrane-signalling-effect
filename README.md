@@ -9,8 +9,8 @@ import matplotlib.gridspec as gridspec
 
 # Try to import SALib for sensitivity analysis
 try:
-    from SALib.sample import saltelli
-    from SALib.analyze import sobol
+    from SALib.sample import saltelli, sobol
+    from SALib.analyze import sobol as analyze_sobol
     SALIB_AVAILABLE = True
 except ImportError:
     SALIB_AVAILABLE = False
@@ -114,13 +114,13 @@ def sensitivity_analysis():
             'names': ['k1', 'k2', 'k3', 'k4'],
             'bounds': [[0.1, 2.0], [0.1, 1.5], [0.1, 2.0], [0.05, 1.0]],
         }
-        param_values = saltelli.sample(problem, 256, calc_second_order=False)
+        param_values = sobol.sample(problem, 256, calc_second_order=False)
         C_final = []
         for p in param_values:
             k1, k2, k3, k4 = p
             t, _, _, C, _ = run_simulation(3.0, k_inh=0.0, k1=k1, k2=k2, k3=k3, k4=k4)
             C_final.append(C[-1])
-        Si = sobol.analyze(problem, np.array(C_final), calc_second_order=False)
+        Si = analyze_sobol.analyze(problem, np.array(C_final), calc_second_order=False)
         return problem['names'], Si['S1'], Si['ST']
     else:
         # Manual one-at-a-time sensitivity
